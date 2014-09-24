@@ -358,8 +358,8 @@ static ssize_t show_##file_name				\
 	return sprintf(buf, "%u\n", policy->object);	\
 }
 
-show_one(cpuinfo_min_freq, cpuinfo.min_freq);
-show_one(cpuinfo_max_freq, cpuinfo.max_freq);
+show_one(cpuinfo_min_freq, min);
+show_one(cpuinfo_max_freq, max);
 show_one(cpuinfo_transition_latency, cpuinfo.transition_latency);
 show_one(scaling_min_freq, min);
 show_one(scaling_max_freq, max);
@@ -1774,6 +1774,9 @@ static struct notifier_block __refdata cpufreq_cpu_notifier = {
     .notifier_call = cpufreq_cpu_callback,
 };
 
+#if defined(CONFIG_CPU_UNDERVOLTING)
+void create_standard_UV_interfaces(void);
+#endif
 /*********************************************************************
  *               REGISTER / UNREGISTER CPUFREQ DRIVER                *
  *********************************************************************/
@@ -1837,6 +1840,9 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
 	register_hotcpu_notifier(&cpufreq_cpu_notifier);
 	pr_debug("driver %s up and running\n", driver_data->name);
 
+#if defined(CONFIG_CPU_UNDERVOLTING)
+	create_standard_UV_interfaces();
+#endif
 	return 0;
 err_sysdev_unreg:
 	sysdev_driver_unregister(&cpu_sysdev_class,
