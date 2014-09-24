@@ -1,0 +1,85 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:CPU - GPU,
+    elements:[
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show temp"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show freq"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show offline"
+	}},
+	{ SLiveLabel:{
+		refresh:1000,
+		action:"show gpu"
+	}},
+    { SPane:{
+        title:"CPU Frequency control"
+    }},
+	{ SSeekBar:{
+		title:"Minimum SCALING frequency",		
+		description:"Default is 200MHz.",
+		unit:" Mhz",
+		weight:0.001,
+		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq`,
+		action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`]
+	}},
+	{ SSeekBar:{
+		title:"Maximum SCALING frequency",		
+		description:"Default is 1.6GHz - CPU powersaving in rom settings will lock this at 1.1GHz.",
+		unit:" Mhz",
+		weight:0.001,
+		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq`,
+		action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies`]
+	}},
+	{ SPane:{
+		title:"CPU Governor",
+		description:"The CPU governor determines how the CPU behaves in response to changes in workload."
+	}},
+	{ SOptionList:{
+		default:`cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`,
+		action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`]
+	}},
+	{ SPane:{
+		title:"Intelli-Hotplug",
+		description:"A in-Kernel replacement for Samsung Hotplug driver, enabling this will disable Samsung MPDecision Hotplug.",
+		default:`cat /sys/module/intelli_plug/parameters/intelli_plug_active`,
+	}},
+	{ SCheckBox:{
+		label:"Enable Intelli-Hotplug",
+		action:"default hotplug"
+	}},
+	{ SCheckBox:{
+		label:"Enable ECO Mode",
+		description:"Tablet will try to behave like a dual-core",
+		default:`cat /sys/module/intelli_plug/parameters/eco_mode_active`,
+		action:"generic /sys/module/intelli_plug/parameters/eco_mode_active",
+	}},
+	{ SPane:{
+		title:"INFO",
+	}},
+	{ SButton:{
+		label:"CPU build info",
+		action:"show cpuinfo"
+	}},
+	{ SButton:{
+		label:"CPU active modules",
+		action:"show modules"
+	}},
+	{ SButton:{
+		label:"GPU INFO",
+		action:"show gpuinfo"
+	}},
+    ]
+}
+CTAG

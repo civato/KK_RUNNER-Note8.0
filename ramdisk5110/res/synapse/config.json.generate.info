@@ -1,0 +1,98 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:INFO - REBOOT - BACKUP,
+    elements:[
+
+	{ SPane:{
+		title:" Kernel Build"
+	}},
+	{ SLiveLabel:{
+		refresh:10000,
+		action:"default version"
+	}},
+	{ SButton:{
+		label:"Linux info",
+		action:"show kernel"
+	}},
+	{ SPane:{
+		title:" Rom Build"
+	}},
+	{ SLiveLabel:{
+		refresh:10000,
+		action:"default build"
+	}},
+	{ SPane:{
+		title:"Baseband"
+	}},
+	{ SLiveLabel:{
+		refresh:10000,
+		action:"default baseband"
+	}},
+	{ SPane:{
+		title:"Bootloader"
+	}},
+	{ SLiveLabel:{
+		refresh:10000,
+		action:"default bootloader"
+	}},
+	{ SPane:{
+		title:"Serial"
+	}},
+	{ SLiveLabel:{
+		refresh:10000,
+		action:"default serial"
+	}},
+	{ SDescription:{
+		description:" "
+	}},
+	{ SPane:{
+		title:"Reboot"
+	}},
+	{ SButton:{
+		label:"Reboot Device",
+		action:"devtools reboot"
+	}},
+	{ SButton:{
+		label:"Reboot to Recovery",
+		action:"devtools reboot recovery"
+	}},
+	{ SButton:{
+		label:"Reboot to Download Mode",
+		action:"devtools reboot bootloader"
+	}},
+	{ SPane:{
+		title:"Configuration Profiles"
+	}},
+	{ SOptionList:{
+		title:"Selected Profile",
+        description:" Choose the settings backup you want. APPLY & REBOOT.",
+		action:"restorebackup pickconfig",
+        default:"None",
+		values:[ "None",
+`
+			for BAK in \`/res/synapse/actions/restorebackup listconfig\`; do
+			  echo "\"$BAK\","
+			done
+`
+		]
+	}},
+    { STitleBar:{
+		title:"Settings Actions",
+    }},
+    { SButton:{
+		label:"Restore Selected Profile",
+		action:"restorebackup applyconfig"
+	}},
+    { SButton:{
+		label:"Delete Selected Profile",
+		action:"restorebackup delconfig"
+	}},
+	{ SButton:{
+		label:"Backup Current Profile",
+		action:"restorebackup keepconfig"
+	}},
+    ]
+}
+CTAG

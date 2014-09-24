@@ -1,0 +1,72 @@
+#!/system/bin/sh
+
+cat << CTAG
+{
+    name:I/O-VM-TCP,
+    elements:[
+    { SPane:{
+		title:"I/O schedulers",
+		description:"Set the active I/O elevator algorithm. The scheduler decides how to handle I/O requests and how to handle them."
+    }},
+	{ SOptionList:{
+		title:"Internal_storage scheduler",
+		default:`cat /sys/block/mmcblk0/queue/scheduler | busybox awk 'NR>1{print $1}' RS=[ FS=]`,
+		action:"scheduler /sys/block/mmcblk0/queue/scheduler",
+		values:[`while read values; do busybox printf "%s, \n" $values | busybox tr -d '[]'; done < /sys/block/mmcblk0/queue/scheduler`]
+	}},
+	{ SSeekBar:{
+		title:"Internal_storage read-ahead",
+		max:2048,
+		min:128,
+		unit:" kB",
+		step:128,
+		default:`cat /sys/block/mmcblk0/queue/read_ahead_kb`,
+		action:"generic /sys/block/mmcblk0/queue/read_ahead_kb"
+	}},
+	{ SOptionList:{
+		title:"ExternalSD scheduler",
+		default:`cat /sys/block/mmcblk1/queue/scheduler | busybox awk 'NR>1{print $1}' RS=[ FS=]`,
+		action:"scheduler /sys/block/mmcblk1/queue/scheduler",
+		values:[`while read values; do busybox printf "%s, \n" $values | busybox tr -d '[]'; done < /sys/block/mmcblk1/queue/scheduler`]
+	}},
+	{ SSeekBar:{
+		title:"ExternalSD  read-ahead",
+		max:2048,
+		min:128,
+		unit:" kB",
+		step:128,
+		default:`cat /sys/block/mmcblk1/queue/read_ahead_kb`,
+		action:"generic /sys/block/mmcblk1/queue/read_ahead_kb"
+	}},
+	{ SPane:{
+		title:"Dynamic FSYNC Driver",
+		description:"While screen is on file sync is disabled, when screen is off a file sync is called to flush all outstanding writes and restore file sync operation as normal."
+	}},
+	{ SCheckBox:{
+		label:"Enable dynamic fsync",
+		default:`cat /sys/kernel/dyn_fsync/Dyn_fsync_active`,
+		action:"generic /sys/kernel/dyn_fsync/Dyn_fsync_active"
+	}},
+	{ SPane:{
+		title:"swappiness",
+		description:" A low value means the kernel will try to avoid swapping as much as possible where a higher value instead will make the kernel aggressively try to use swap space. Default is 60.",
+    }},
+	{ SSeekBar:{
+		max:100,
+		min:0,
+		step:10,
+		default:`cat /proc/sys/vm/swappiness`,
+		action:"generic /proc/sys/vm/swappiness",
+	}},
+    { SPane:{
+		title:"TCP Congestion Control",
+		description:" Select your preferred WIFI TCP algorithm. Regulates upload and download affecting throughput in various ways. Default is Cubic."
+    }},
+	{ SOptionList:{
+		default:`cat proc/sys/net/ipv4/tcp_congestion_control`,
+		action:"generic proc/sys/net/ipv4/tcp_congestion_control",
+		values:[`while read values; do busybox printf "%s, \n" $values; done < proc/sys/net/ipv4/tcp_available_congestion_control`]
+	}},
+    ]
+}
+CTAG

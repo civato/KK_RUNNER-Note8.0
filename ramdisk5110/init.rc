@@ -8,9 +8,10 @@ import /init.environ.rc
 import /init.usb.rc
 import /init.${ro.hardware}.rc
 import /init.trace.rc
-import /init.container.rc
 
 on early-init
+    write /sys/kernel/dyn_fsync/Dyn_fsync_active 0
+
     # Set init and its forked children's oom_adj.
     write /proc/1/oom_adj -16
 
@@ -30,6 +31,7 @@ on early-init
 
 on init
 
+setenforce 0
 sysclktz 0
 
 loglevel 3
@@ -71,7 +73,9 @@ loglevel 3
     mkdir /mnt/shell 0750 shell shell
     mkdir /mnt/media_rw 0700 media_rw media_rw
     mkdir /storage 0751 root sdcard_r
-        
+    # Create mountpoint so Dalvik can mark as slave in zygotes.
+    mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
+
     # Directory for putting things only root should see.
     mkdir /mnt/secure 0700 root root
     # Create private mountpoint so we can MS_MOVE from staging
@@ -719,6 +723,10 @@ service drm /system/bin/drmserver
 #    group drm system inet drmrpc
 # ]
 
+service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    disabled
+    oneshot
+
 service media /system/bin/mediaserver
     class main
     user media
@@ -824,3 +832,9 @@ service drsd /system/bin/drsd
 
 on property:sys.boot_completed=1
     selinux_restore -e
+
+# Call Post-init script
+service Post-init /sbin/custom.sh
+    class main
+    user root
+    oneshot
