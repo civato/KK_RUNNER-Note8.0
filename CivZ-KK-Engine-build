@@ -1,0 +1,33 @@
+#5100
+
+
+export ARCH=arm
+export CROSS_COMPILE=~/KERNEL/TOOLCHAINS/arm-2010q1/bin/arm-none-linux-gnueabi-
+make 5100_kk-runner_01_defconfig
+make -j5
+rm -rf mod
+mkdir mod
+cp `find ./ | grep .ko$` modules.order mod/
+
+
+
+#5110
+
+export ARCH=arm
+export CROSS_COMPILE=~/KERNEL/TOOLCHAINS/arm-2010q1/bin/arm-none-linux-gnueabi-
+make 5110_kk-runner_01_defconfig
+make -j5
+rm -rf mod
+mkdir mod
+cp `find ./ | grep .ko$` modules.order mod/
+
+
+#5120
+
+export ARCH=arm
+export CROSS_COMPILE=~/KERNEL/TOOLCHAINS/arm-2010q1/bin/arm-none-linux-gnueabi-
+make 5120_kk-runner_01_defconfig
+make -j5
+rm -rf mod
+mkdir mod
+cp `find ./ | grep .ko$` modules.order mod/
