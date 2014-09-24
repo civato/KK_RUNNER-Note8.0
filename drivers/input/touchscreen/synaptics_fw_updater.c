@@ -455,6 +455,7 @@ int synaptics_fw_updater(struct synaptics_drv_data *data, u8 *fw_data)
 			data->firm_version[0],data->firm_version[1],
 			data->firm_version[2],data->firm_version[3]);
 
+#if defined(CONFIG_MACH_KONA_EUR_LTE)
 		/* update firm > tsp */
 		
 		if (strcmp(data->firm_version, buf) > 0) {
@@ -469,6 +470,22 @@ int synaptics_fw_updater(struct synaptics_drv_data *data, u8 *fw_data)
 		fw->fw_data = fw_data;
         update = true;
     }
+#else
+		/* update firm > tsp */
+		/*
+		if (strcmp(data->firm_version, buf) > 0) {
+			printk(KERN_DEBUG "[TSP] update!\n");
+			update = true;
+		}
+		*/
+		/* update if firm != tsp */
+		if (strncmp(data->firm_version, buf, 4) != 0)
+			update = true;
+	} else {
+		fw->fw_data = fw_data;
+        update = true;
+    }
+#endif
 	
 	if (update) {
 		printk(KERN_DEBUG "[TSP] tsp update!!\n");

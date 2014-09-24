@@ -1148,13 +1148,28 @@ static void battery_charge_control(struct battery_info *info,
 	current_time = ktime_to_timespec(ktime);
 
 	if ((info->cable_type != POWER_SUPPLY_TYPE_BATTERY) &&
-		(chg_curr > 0)) {
-		info->siop_charge_current = chg_curr * info->siop_lv / 100;
+		(chg_curr > 0) && (info->siop_state == true)) {
 
-		if(info->siop_charge_current < info->pdata->chg_curr_usb)
-			chg_curr = info->pdata->chg_curr_usb;
-		else
-			chg_curr = info->siop_charge_current;
+		switch (info->siop_lv) {
+		case SIOP_LV1:
+			info->siop_charge_current =
+				info->pdata->chg_curr_siop_lv1;
+			break;
+		case SIOP_LV2:
+			info->siop_charge_current =
+				info->pdata->chg_curr_siop_lv2;
+			break;
+		case SIOP_LV3:
+			info->siop_charge_current =
+				info->pdata->chg_curr_siop_lv3;
+			break;
+		default:
+			info->siop_charge_current =
+				info->pdata->chg_curr_usb;
+			break;
+		}
+
+		chg_curr = MIN(chg_curr, info->siop_charge_current);
 		pr_info("%s: siop state, level(%d), cc(%d)\n",
 				__func__, info->siop_lv, chg_curr);
 	}
@@ -1852,7 +1867,9 @@ monitor_finish:
 						info->charge_start_time));
 	if (info->event_state != EVENT_STATE_CLEAR)
 		pr_cont(", e(%d, 0x%04x)", info->event_state, info->event_type);
-	pr_cont(", op(%d)", info->siop_lv);
+	if (info->siop_state)
+		pr_cont(", op(%d, %d)", info->siop_state, info->siop_lv);
+
 	pr_cont("\n");
 
 	/* check current_avg */
@@ -2443,7 +2460,6 @@ static __devinit int samsung_battery_probe(struct platform_device *pdev)
 	info->led_state = BATT_LED_DISCHARGING;
 	info->monitor_count = 0;
 	info->slate_mode = 0;
-	info->siop_lv = 100;
 #ifdef CONFIG_FAST_BOOT
 	info->dup_power_off = false;
 	info->suspend_check = false;
