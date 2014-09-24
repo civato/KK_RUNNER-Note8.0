@@ -1,0 +1,16 @@
+
+on boot
+
+# VMware BEGIN
+# VMware MVP feature list (generated)
+    setprop ro.mvp.features	srvc,mvpdsec,ftx,grbks,vpn 
+# VMware END
+
+# VMware BEGIN
+# VMware MVP Hypervisor daemon
+# DO NOT REMOVE THIS COMMENT MVP_FEATURE_srvc
+service mvpd /system/bin/mvpd -F -a 14
+    class main
+    user root
+    disabled
+# VMware END	
